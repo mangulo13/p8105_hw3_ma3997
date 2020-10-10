@@ -95,7 +95,7 @@ instacart %>%
 
 ## Question 2
 
-```{r part one}
+```{r part 2.1}
 accel_df = read_csv("./data/accel_data.csv") %>% 
   janitor::clean_names() %>% 
   mutate(
@@ -128,7 +128,7 @@ This dataset
 
 Pivot longer, havnig something for activity count and minute, add variable with mutate, reasonable order and names, 
 
-```{r part two}
+```{r part 2.2}
 accel_df %>% 
   group_by(week, day) %>% 
   summarize(total = sum(activity_count)) %>% 
@@ -139,7 +139,7 @@ accel_df %>%
 Aggregrate with group by week and then day and summarize with mean or sum to end up with table with 35 days and activity count for each of those days. Make table easier to read with week number and day of the week. Trends apparent that just point out busy weeks or slow weeks Day of the week is gonna be in alpha order so need to use factors to reorder
 
 
-```{r part three}
+```{r part 2.3}
 accel_df %>% 
   ggplot(aes(x = minute, y =activity_count, color = day))+
   geom_line()
@@ -151,21 +151,54 @@ Make a plot. Want to see activity at each minute of each day. Minute on x and ac
 
 ## Question 3
 
-```{r}
+```{r part 3.1}
 library(p8105.datasets)
+library(hexbin)
 data("ny_noaa")
 
-ny_noaa = 
+ny_noaa_df = 
   ny_noaa %>% 
   janitor::clean_names() %>%
-  separate(date, into = c("year", "month", "day"), convert = TRUE)
+  separate(date, into = c("year", "month", "day"), convert = TRUE) %>% 
+  mutate(
+    tmin = as.numeric(tmin),
+    tmax = as.numeric(tmax),
+    prcp = prcp * 0.01,
+    tmin = tmin * 0.01,
+    tmax = tmax * 0.01
+  )
+
+count(ny_noaa_df, snow)
   
-ny_noaa
+
+  
 ```
 
 Separate y-m-d into year and month and day variables. Convert prcp and snowfall to an easier to comprehend value range. use count to find most common 
 
+
+```{r part 3.2}
+panel_df= 
+  ny_noaa_df %>% 
+  filter(month %in% c("1","7")) %>% 
+  group_by(year, month, id) %>% 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE)) %>% 
+  ggplot(aes(x = year, y = mean_tmax, group = id, color = id))+
+  geom_point(alpha = .5)+
+  geom_path()+
+  facet_grid(. ~ month)+
+  labs(title = "Mean temperature for January and July across stations and years", x = "year", y = "average maximum temperature (C)")+
+  theme(legend.position = "none", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+panel_df
+```
+
+
 Group by station, year, and month and summarize to get max temp. Filter at some point, either way it will wrok Plot. Facet to get two panels
+
+```{r part 3.3}
+
+```
 
 use patchwork to combine plots. First one could be hex plot or contour plot instead of scatterplot. For second filter first, and then use boxplot, ridge plot, violin plot 
 
