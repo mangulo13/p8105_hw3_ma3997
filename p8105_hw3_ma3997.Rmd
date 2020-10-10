@@ -154,6 +154,8 @@ Make a plot. Want to see activity at each minute of each day. Minute on x and ac
 ```{r part 3.1}
 library(p8105.datasets)
 library(hexbin)
+library(ggridges)
+library(patchwork)
 data("ny_noaa")
 
 ny_noaa_df = 
@@ -197,6 +199,28 @@ panel_df
 Group by station, year, and month and summarize to get max temp. Filter at some point, either way it will wrok Plot. Facet to get two panels
 
 ```{r part 3.3}
+hex_panel_df = 
+  ny_noaa_df %>% 
+  ggplot(aes(x = tmin, y = tmax))+
+  geom_hex()+
+  labs(title = "Daily max temperatures versus daily min temperatures")
+
+hex_panel_df
+
+
+
+box_panel_df =
+  ny_noaa_df %>% 
+  filter(snow %in% c(1:99)) %>% 
+  ggplot(aes( x = snow, y = year, group = year))+
+  geom_boxplot()+
+  theme(legend.position = "none")+
+  labs(title = "Yearly amount of snowfall")
+
+box_panel_df
+
+hex_panel_df + box_panel_df
+
 
 ```
 
