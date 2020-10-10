@@ -93,6 +93,80 @@ instacart %>%
 ```
 
 
+## Question 2
 
+```{r part one}
+accel_df = read_csv("./data/accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    day = factor(day, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+  )) %>% 
+  arrange(day, week) %>% 
+  pivot_longer(
+    activity_1:activity_1440,
+    names_to = "minute",
+    names_prefix = "activity_",
+    values_to = "activity_count"
+  ) %>% 
+  mutate(
+    weekday_weekend = case_when(
+      day %in% c("Saturday", "Sunday") ~ "weekend",
+      day %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday") ~ "weekday",
+      TRUE ~ "")
+  ) %>% 
+  mutate(
+     weekday_weekend = factor(weekday_weekend),
+     minute = as.numeric(minute)
+  ) %>% 
+  relocate(week, day_id, day, weekday_weekend)
+
+accel_df
+```
+
+This dataset 
+
+
+Pivot longer, havnig something for activity count and minute, add variable with mutate, reasonable order and names, 
+
+```{r part two}
+accel_df %>% 
+  group_by(week, day) %>% 
+  summarize(total = sum(activity_count)) %>% 
+  knitr::kable()
+```
+
+
+Aggregrate with group by week and then day and summarize with mean or sum to end up with table with 35 days and activity count for each of those days. Make table easier to read with week number and day of the week. Trends apparent that just point out busy weeks or slow weeks Day of the week is gonna be in alpha order so need to use factors to reorder
+
+
+```{r part three}
+accel_df %>% 
+  ggplot(aes(x = minute, y =activity_count, color = day))+
+  geom_line()
+```
+
+Little activity during 500 - 1200 minutes especially during work week
+
+Make a plot. Want to see activity at each minute of each day. Minute on x and activity count on y. Scatterplot wont work. geom_line is a little bit better. Aesthetic mapping for color = day of week. Is minute of the day a numeric or factor or character?  
+
+## Question 3
+
+```{r}
+library(p8105.datasets)
+data("ny_noaa")
+
+ny_noaa = 
+  ny_noaa %>% 
+  janitor::clean_names() %>%
+  separate(date, into = c("year", "month", "day"), convert = TRUE)
+  
+ny_noaa
+```
+
+Separate y-m-d into year and month and day variables. Convert prcp and snowfall to an easier to comprehend value range. use count to find most common 
+
+Group by station, year, and month and summarize to get max temp. Filter at some point, either way it will wrok Plot. Facet to get two panels
+
+use patchwork to combine plots. First one could be hex plot or contour plot instead of scatterplot. For second filter first, and then use boxplot, ridge plot, violin plot 
 
 
